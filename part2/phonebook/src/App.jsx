@@ -1,4 +1,42 @@
+/* eslint-disable react/prop-types */
 import { useState } from "react";
+
+const Filter = ({ searchName, handleSearchNameChange }) => (
+  <div>
+    filter shown with
+    <input value={searchName} onChange={handleSearchNameChange} />
+  </div>
+);
+
+const PersonForm = ({
+  addPerson,
+  newName,
+  handleNameChange,
+  newNumber,
+  handleNumberChange,
+}) => (
+  <form onSubmit={addPerson}>
+    <div>
+      name: <input value={newName} onChange={handleNameChange} />
+    </div>
+    <div>
+      number: <input value={newNumber} onChange={handleNumberChange} />
+    </div>
+    <div>
+      <button type="submit">add</button>
+    </div>
+  </form>
+);
+
+const Persons = ({ persons }) => (
+  <div>
+    {persons.map((p, i) => (
+      <p key={i}>
+        {p.name} {p.number}
+      </p>
+    ))}
+  </div>
+);
 
 const App = () => {
   const [persons, setPersons] = useState([
@@ -6,9 +44,14 @@ const App = () => {
   ]);
   const [newName, setNewName] = useState("");
   const [newNumber, setNewNumber] = useState("");
+  const [searchName, setSearchName] = useState("");
 
   const handleNameChange = (event) => {
     setNewName(event.target.value);
+  };
+
+  const handleSearchNameChange = (event) => {
+    setSearchName(event.target.value);
   };
 
   const handleNumberChange = (event) => {
@@ -30,27 +73,27 @@ const App = () => {
     }
   };
 
+  const filteredPersons = persons.filter((person) =>
+    person.name.toLowerCase().includes(searchName.toLowerCase())
+  );
+
   return (
     <div>
       <h2>Phonebook</h2>
-      <form onSubmit={addPerson}>
-        <div>
-          name: <input value={newName} onChange={handleNameChange} />
-        </div>
-        <div>
-          number: <input value={newNumber} onChange={handleNumberChange} />
-        </div>
-        <div>
-          <button type="submit">add</button>
-        </div>
-      </form>
-
+      <Filter
+        searchName={searchName}
+        handleSearchNameChange={handleSearchNameChange}
+      />
+      <h2>add a new</h2>
+      <PersonForm
+        addPerson={addPerson}
+        newName={newName}
+        handleNameChange={handleNameChange}
+        newNumber={newNumber}
+        handleNumberChange={handleNumberChange}
+      />
       <h2>Numbers</h2>
-      {persons.map((p, i) => (
-        <p key={i}>
-          {p.name} {p.number}
-        </p>
-      ))}
+      <Persons persons={filteredPersons} />
     </div>
   );
 };
