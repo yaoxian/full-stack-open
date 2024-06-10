@@ -1,6 +1,7 @@
 /* eslint-disable react/prop-types */
 import { useState, useEffect } from "react";
 import phonebook from "./services/phonebook";
+import Notification from "./components/Notification";
 
 const Filter = ({ searchName, handleSearchNameChange }) => (
   <div>
@@ -29,11 +30,21 @@ const PersonForm = ({
   </form>
 );
 
-const Persons = ({ persons, setPersons }) => {
+const Persons = ({ persons, setPersons, setSuccess, setMessage }) => {
   const deletePerson = (name, id) => {
     if (confirm(`Delete ${name} ?`)) {
-      phonebook.remove(id).then(() => {
-        setPersons(persons.filter((p) => p.id !== id));
+      phonebook.remove(id).then((response) => {
+        if (response !== null) {
+          setPersons(persons.filter((p) => p.id !== id));
+        } else {
+          setSuccess(false);
+          setMessage(
+            `Information of ${name} has already been removed from server`
+          );
+          setTimeout(() => {
+            setMessage(null);
+          }, 5000);
+        }
       });
     }
   };
@@ -57,6 +68,8 @@ const App = () => {
   const [newName, setNewName] = useState("");
   const [newNumber, setNewNumber] = useState("");
   const [searchName, setSearchName] = useState("");
+  const [message, setMessage] = useState(null);
+  const [success, setSuccess] = useState(true);
 
   useEffect(() => {
     phonebook.getAll().then((initialPersons) => {
@@ -95,10 +108,13 @@ const App = () => {
                 person.id !== returnedPerson.id ? person : returnedPerson
               )
             );
-            console.log("updated");
-            console.log(persons);
             setNewName("");
             setNewNumber("");
+            setSuccess(true);
+            setMessage(`Changed ${updatedPerson.name}'s Number`);
+            setTimeout(() => {
+              setMessage(null);
+            }, 5000);
           });
       }
     } else {
@@ -112,11 +128,15 @@ const App = () => {
         setPersons(persons.concat(returnedPerson));
         setNewName("");
         setNewNumber("");
+        setSuccess(true);
+        setMessage(`Added ${returnedPerson.name}`);
+        setTimeout(() => {
+          setMessage(null);
+        }, 5000);
       });
     }
   };
 
-  console.log(persons);
   const filteredPersons = persons.filter((person) =>
     person.name.toLowerCase().includes(searchName.toLowerCase())
   );
@@ -124,6 +144,7 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
+      <Notification message={message} success={success} />
       <Filter
         searchName={searchName}
         handleSearchNameChange={handleSearchNameChange}
@@ -137,7 +158,12 @@ const App = () => {
         handleNumberChange={handleNumberChange}
       />
       <h2>Numbers</h2>
-      <Persons persons={filteredPersons} setPersons={setPersons} />
+      <Persons
+        persons={filteredPersons}
+        setPersons={setPersons}
+        setSuccess={setSuccess}
+        setMessage={setMessage}
+      />
     </div>
   );
 };
