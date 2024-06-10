@@ -2,66 +2,9 @@
 import { useState, useEffect } from "react";
 import phonebook from "./services/phonebook";
 import Notification from "./components/Notification";
-
-const Filter = ({ searchName, handleSearchNameChange }) => (
-  <div>
-    filter shown with
-    <input value={searchName} onChange={handleSearchNameChange} />
-  </div>
-);
-
-const PersonForm = ({
-  addPerson,
-  newName,
-  handleNameChange,
-  newNumber,
-  handleNumberChange,
-}) => (
-  <form onSubmit={addPerson}>
-    <div>
-      name: <input value={newName} onChange={handleNameChange} />
-    </div>
-    <div>
-      number: <input value={newNumber} onChange={handleNumberChange} />
-    </div>
-    <div>
-      <button type="submit">add</button>
-    </div>
-  </form>
-);
-
-const Persons = ({ persons, setPersons, setSuccess, setMessage }) => {
-  const deletePerson = (name, id) => {
-    if (confirm(`Delete ${name} ?`)) {
-      phonebook.remove(id).then((response) => {
-        if (response !== null) {
-          setPersons(persons.filter((p) => p.id !== id));
-        } else {
-          setSuccess(false);
-          setMessage(
-            `Information of ${name} has already been removed from server`
-          );
-          setTimeout(() => {
-            setMessage(null);
-          }, 5000);
-        }
-      });
-    }
-  };
-
-  return (
-    <div>
-      {persons.map((p) => (
-        <div key={p.id} style={{ display: "flex", alignItems: "center" }}>
-          <p style={{ margin: "0 10px 0 0" }}>
-            {p.name} {p.number}
-          </p>
-          <button onClick={() => deletePerson(p.name, p.id)}>delete</button>
-        </div>
-      ))}
-    </div>
-  );
-};
+import Persons from "./components/Persons";
+import PersonForm from "./components/PersonForm";
+import Filter from "./components/Filter";
 
 const App = () => {
   const [persons, setPersons] = useState([]);
